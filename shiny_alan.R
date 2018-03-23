@@ -3,7 +3,7 @@
 # Preliminaries:
 
 # Dimensions of iris -> may need to change later
-dimens = seq(4)
+#dimens = seq(4)
 # Iris function
 species_to_index <- function(species){
   if(is.null(species)) 2
