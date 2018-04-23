@@ -1,8 +1,6 @@
 library(shiny)
 library(mclust)
-library(shinythemes)
-
-
+library(e1071)
 
 data(thyroid)
 data(iris)
@@ -23,6 +21,24 @@ summarymclust <- function(object) {
       l <- c(l, 0)
     l
   })))
+  
+}
+
+summarymclustlab <- function(object, data) {
+  cat("Gaussian finite mixture model fitted by EM algorithm.\n\nMclust has clustered the", object$n , "observations of the dataset into" , object$G , "clusters(ie.", object$G, 
+      "mixture components) where the model chosen was",object$modelName,"with a BIC score of" , 
+      object$bic, "\n\n")
+  cat("Clustering tabe:" )
+  print(table(factor(object$classification, levels = {
+    l <- seq_len(object$G)
+    if (is.numeric(object$noise)) 
+      l <- c(l, 0)
+    l
+  })))
+  cat("Confusion Matrix:")
+  print(table(object$classification, data[,1]))
+  a <- classAgreement(table(object$classification, data[,1]))
+  cat("with a rand index of:", a$rand, "and an adjusted rand index of:", a$crand)
   
 }
 
@@ -108,6 +124,8 @@ ui <- navbarPage("Mclust App", fluid =TRUE,
                                          # Input: Checkbox if file has header ----
                                          checkboxInput("header", "Header", TRUE),
                                          
+                                         checkboxInput("labels", "Class Labels as 1st Column", FALSE),
+                                         
                                          # Input: Select separator ----
                                          radioButtons("sep", "Separator",
                                                       choices = c(Comma = ",",
@@ -167,7 +185,7 @@ ui <- navbarPage("Mclust App", fluid =TRUE,
                                        sidebarPanel(
                                          
                                          # Input: Select a file ----
-                                         fileInput("file4", "Choose Train CSV File (labels in 1st column)",
+                                         fileInput("file4", "Choose Train CSV File",
                                                    multiple = TRUE,
                                                    accept = c("text/csv",
                                                               "text/comma-separated-values,text/plain",
@@ -269,9 +287,7 @@ server <- function(input, output, session) {
   coln <- reactive({  colnames(datasetInput()) })
   
   # The plot
-  
   output$plot1 <- renderPlot({
-    
     x = demcol_to_ind(coln() ,input$xcol)
     y = demcol_to_ind(coln(), input$ycol)
     if(input$plotType == "classification" || input$plotType == "uncertainty"){
@@ -290,7 +306,6 @@ server <- function(input, output, session) {
       plot.mclustBIC(model()$BIC, G = input$nclust[1]:input$nclust[2])
     }
   })
-  
   # The summary
   output$summary <- renderPrint({
     summarymclust(model())
@@ -313,9 +328,9 @@ server <- function(input, output, session) {
   })
   
   output$xcol_selector1 = renderUI({
-    if (is.null(datasetInput1())) return()
-    xdata_available1 = datasetInput1()
     
+    if(input$labels == FALSE) xdata_available1 = datasetInput1()
+    else xdata_available1 = datasetInput1()[,-1]
     
     selectInput(inputId = "xcol1", #name of input
                 label = "X variable:", #label displayed in ui
@@ -324,9 +339,9 @@ server <- function(input, output, session) {
   })
   
   output$ycol_selector1 = renderUI({
-    if (is.null(datasetInput1())) return()
     
-    ydata_available1 = datasetInput1()
+    if(input$labels == FALSE) ydata_available1 = datasetInput1()
+    else ydata_available1 = datasetInput1()[,-1]
     
     
     selectInput(inputId = "ycol1", #name of input
@@ -339,13 +354,18 @@ server <- function(input, output, session) {
   
   # Defining model
   model1 <- reactive({
-    mymod <- Mclust(datasetInput1(), G = input$nclust1[1]:input$nclust1[2])
+    
+    if(input$labels == FALSE) mymod <- Mclust(datasetInput1(), G = input$nclust1[1]:input$nclust1[2]) 
+    else mymod <- Mclust(datasetInput1()[,-1], G = input$nclust1[1]:input$nclust1[2])
   })
   
-  coln1 <- reactive({  colnames(datasetInput1()) }) 
-  
+  coln1 <- reactive({  
+    if(input$labels == FALSE) colnames(datasetInput1())  
+    else colnames(datasetInput1()[,-1]) }) 
+
   # The plot
   output$plot2 <- renderPlot({
+    if(input$labels == FALSE){
     x1 = upcol_to_ind(coln1(), input$xcol1) 
     y1 = upcol_to_ind(coln1(), input$ycol1)
     if(input$plotType1 == "classification" || input$plotType1 == "uncertainty"){
@@ -362,10 +382,30 @@ server <- function(input, output, session) {
     else if(input$plotType1 =="BIC"){
       plot.mclustBIC(model1()$BIC, G = input$nclust1[1]:input$nclust1[2])
     }
+    }
+    else {
+      x1 = upcol_to_ind(coln1(), input$xcol1) 
+      y1 = upcol_to_ind(coln1(), input$ycol1)
+      if(input$plotType1 == "classification" || input$plotType1 == "uncertainty"){
+        coordProj(data = datasetInput1()[,-1], what = input$plotType1, 
+                  parameters = model1()$parameters, z = model1()$z, 
+                  dimens = c(x1, y1), main = FALSE, 
+                  xaxt = "n", yaxt = "n")
+      }
+      else if(input$plotType1 == "density"){
+        if(x1 != y1){
+          density2d(model1(), datasetInput1()[,-1], x1, y1)
+        }
+      }
+      else if(input$plotType1 =="BIC"){
+        plot.mclustBIC(model1()$BIC, G = input$nclust1[1]:input$nclust1[2])
+      }
+    }
   })
   # The summary
   output$summary1 <- renderPrint({
-    summarymclust(model1())
+    if(input$labels == FALSE) summarymclust(model1())
+    else summarymclustlab(model1(), datasetInput1())
   })
   
   #####################################################################################
