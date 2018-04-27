@@ -14,7 +14,7 @@ summarymclust <- function(object) {
   cat("Gaussian finite mixture model fitted by EM algorithm.\n\nMclust has clustered the", object$n , "observations of the dataset into" , object$G , "clusters(ie.", object$G, 
       "mixture components) where the model chosen was",object$modelName,"with a BIC score of" , 
       object$bic, "\n\n")
-  cat("Clustering tabe:" )
+  cat("Clustering tabel:" )
   print(table(factor(object$classification, levels = {
     l <- seq_len(object$G)
     if (is.numeric(object$noise)) 
@@ -28,7 +28,7 @@ summarymclustlab <- function(object, data) {
   cat("Gaussian finite mixture model fitted by EM algorithm.\n\nMclust has clustered the", object$n , "observations of the dataset into" , object$G , "clusters(ie.", object$G, 
       "mixture components) where the model chosen was",object$modelName,"with a BIC score of" , 
       object$bic, "\n\n")
-  cat("Clustering tabe:" )
+  cat("Clustering tabel:" )
   print(table(factor(object$classification, levels = {
     l <- seq_len(object$G)
     if (is.numeric(object$noise)) 
@@ -230,7 +230,8 @@ ui <- navbarPage("Mclust App", fluid =TRUE,
                             
                  ),
                  tabPanel("About",
-                            includeText("mclustabout.txt"))
+                            titlePanel("About Mclust"),
+                          print("mclust is a contributed R package for model-based clustering, classification, and density estimation based on finite normal mixture modelling. It provides functions for parameter estimation via the EM algorithm for normal mixture models with a variety of covariance structures, and functions for simulation from these models. Also included are functions that combine model-based hierarchical clustering, EM for mixture estimation and the Bayesian Information Criterion (BIC) in comprehensive strategies for clustering, density estimation and discriminant analysis. Additional functionalities are available for displaying and visualizing fitted models along with clustering, classification, and density estimation results"))
                  
 )
 
@@ -298,6 +299,7 @@ server <- function(input, output, session) {
                 xaxt = "n", yaxt = "n")
     }
     else if(input$plotType == "density"){
+      req(x && y)
       if(x != y){
         density2d(model(), datasetInput(), x, y)
       }
