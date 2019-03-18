@@ -6,6 +6,7 @@ The application is split into two main parts: Clustering & Classification. Both 
 
 <img src="https://raw.githubusercontent.com/alanjeffares/mclust-app/master/images/mclust_clustering_demo.png">
 
+## For more information:
 * [Read the report](https://github.com/alanjeffares/mclust-app/blob/master/report.pdf)
 * [View the presentation slides](https://github.com/alanjeffares/mclust-app/blob/master/presentation.pdf)
 * [Try the application](https://mclust.shinyapps.io/apphere/)
