@@ -2,6 +2,6 @@
 
 As part of my final year research project, myself and another student developed an R Shiny application to implement the functionality of the popular R package _mclust_. This is a package for model-based clustering, classification, and density estimation based on finite normal mixture modelling. For further detail please read our extensive report linked below. 
 
-The application is split into two main parts: Clustering & Classification. Both of these sections (1) Demonstrate some of the main funtionality of the _mclust_ package via a demo section and (2) Allow users to use the package on their own data for basic analysis with a simple user interface. 
+The application is split into two main parts: Clustering & Classification. Both of these sections (1) Demonstrate some of the main funtionality of the _mclust_ package via a demo section and (2) Allow users to use the package on their own data for basic analysis with a simple user interface.
 
-<img src="https://raw.githubusercontent.com/alanjeffares/elements-of-statistical-learning/master/chapter-2/images/MSE_vs_Dimension_1.png"  width="400"> <img src="https://raw.githubusercontent.com/alanjeffares/elements-of-statistical-learning/master/chapter-2/images/MSE_vs_Dimension_2.png"  width="400">
+<img src="https://raw.githubusercontent.com/alanjeffares/elements-of-statistical-learning/master/chapter-2/images/MSE_vs_Dimension_1.png"  width="400"> <img src="https://raw.githubusercontent.com/alanjeffares/mclust-app/master/images/mclust_clustering_demo.png"  width="400">
